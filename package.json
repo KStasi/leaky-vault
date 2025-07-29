@@ -1,0 +1,23 @@
+{
+  "name": "leaky-vault",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "npx hardhat run scripts/deploy.ts --network localhost",
+    "attack": "npx hardhat run scripts/attack.ts --network localhost",
+    "node": "npx hardhat node",
+    "compile": "npx hardhat compile"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^6.1.0",
+    "@types/node": "^24.1.0",
+    "hardhat": "^2.26.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.8.3"
+  }
+}

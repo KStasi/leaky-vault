@@ -1,0 +1,55 @@
+name: CI - Deploy and Attack
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  deploy-and-attack:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Compile contracts
+        run: npm run compile
+
+      - name: Start Hardhat node
+        run: |
+          npx hardhat node &
+          sleep 10
+        shell: bash
+
+      - name: Deploy contract
+        run: |
+          VAULT_ADDRESS=$(npx hardhat run scripts/deploy.ts --network localhost 2>&1 | grep "Vault contract address:" | awk '{print $4}')
+          echo "VAULT_ADDRESS=$VAULT_ADDRESS" >> $GITHUB_ENV
+          echo "Deployed vault at: $VAULT_ADDRESS"
+        shell: bash
+
+      - name: Update attack script with deployed address
+        run: |
+          sed -i "s/const vaultAddress: string = \".*\";/const vaultAddress: string = \"$VAULT_ADDRESS\";/" scripts/attack.ts
+          echo "Updated attack script with vault address: $VAULT_ADDRESS"
+        shell: bash
+
+      - name: Perform attack
+        run: npm run attack
+
+      - name: CI Success
+        run: |
+          echo "✅ CI workflow completed successfully!"
+          echo "The private storage vulnerability has been demonstrated"
+        shell: bash
